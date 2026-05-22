@@ -1,0 +1,20 @@
+services:
+  app:
+    # Build the image using the local Dockerfile
+    build:
+      context: .
+    # Set the working directory inside the container
+    working_dir: /app
+    # Mount the project and keep node_modules in a named volume
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    # Expose the static server port
+    ports:
+      - "5173:5173"
+    # Run tests, build, and serve the HTML
+    command: sh -c "npm test && npm run build && npx http-server . -p 5173 -a 0.0.0.0"
+
+volumes:
+  # Named volume for dependencies
+  node_modules:

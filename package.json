@@ -7,7 +7,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev": "npm run build && npx http-server . -p 5173"
+    "dev": "npm run build && npx http-server . -p 5173 -a 0.0.0.0"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/JeronimoZapata/parcial2-zapata#readme",
   "devDependencies": {
+    "http-server": "^14.1.1",
     "typescript": "^5.9.2",
     "vitest": "^4.1.7"
   }
