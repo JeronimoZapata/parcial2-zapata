@@ -1,0 +1,28 @@
+{
+  "name": "parcial2-zapata",
+  "version": "1.0.0",
+  "description": "Parcial 2 de ICS - Año 2026",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "npm run build && npx http-server . -p 5173"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeronimoZapata/parcial2-zapata.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/JeronimoZapata/parcial2-zapata/issues"
+  },
+  "homepage": "https://github.com/JeronimoZapata/parcial2-zapata#readme",
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.7"
+  }
+}
