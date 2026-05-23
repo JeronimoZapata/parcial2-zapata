@@ -19,5 +19,5 @@ COPY test ./test
 #Compila TypeScript al construir la imagen (hace la build de la aplicación)
 RUN npm run build
 
-#Corre tests y luego sirve el HTML
-CMD ["sh", "-c", "npm test && npx http-server . -p 5173 -a 0.0.0.0"]
+#Corre lint, tests y luego sirve el HTML
+CMD ["sh", "-c", "npm run lint && npm test && npx http-server . -p 5173 -a 0.0.0.0"]

@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: Lint, test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Fetch the repository content for the workflow runner.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install and configure the requested Node.js version with npm cache.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Install exact dependency versions from the lockfile.
+      - name: Install dependencies
+        run: npm ci
+
+      # Run the linter to catch code style and quality issues.
+      - name: Run code inspection
+        run: npm run lint
+
+      # Execute the test suite to validate behavior.
+      - name: Run automated tests
+        run: npm test
+
+      # Build the project to ensure production artifacts compile.
+      - name: Run local build
+        run: npm run build

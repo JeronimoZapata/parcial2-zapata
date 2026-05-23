@@ -12,8 +12,8 @@ services:
     # Expose the static server port
     ports:
       - "5173:5173"
-    # Run tests, build, and serve the HTML
-    command: sh -c "npm test && npm run build && npx http-server . -p 5173 -a 0.0.0.0"
+    # Run lint, tests, build, and serve the HTML
+    command: sh -c "npm run lint && npm test && npm run build && npx http-server . -p 5173 -a 0.0.0.0"
 
 volumes:
   # Named volume for dependencies
