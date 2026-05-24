@@ -18,6 +18,9 @@ jobs:
       # Fetch the repository content for the workflow runner.
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
 
       # Install and configure the requested Node.js version with npm cache.
       - name: Setup Node.js
@@ -41,3 +44,9 @@ jobs:
       # Build the project to ensure production artifacts compile.
       - name: Run local build
         run: npm run build
+
+      # Analyze the code with SonarQube Cloud to identify bugs and vulnerabilities.  
+      - name: Run SonarQube Cloud analysis
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
