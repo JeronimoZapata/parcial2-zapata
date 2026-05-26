@@ -1,8 +1,14 @@
 node_modules
 dist
+build
+coverage
 .git
 .github
 .vscode
+.idea
 .env
+.env.*
+*.log*
 npm-debug.log
-coverage
+Dockerfile*
+.dockerignore
