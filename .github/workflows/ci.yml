@@ -43,7 +43,7 @@ jobs:
 
       # Execute the test suite to validate behavior.
       - name: Run automated tests
-        run: npm test
+        run: npm run test:coverage
 
       # Build the project to ensure production artifacts compile.
       - name: Run local build
