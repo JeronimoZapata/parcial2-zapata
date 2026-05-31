@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "spec-inputs/**"
   workflow_dispatch:
 
 permissions:
