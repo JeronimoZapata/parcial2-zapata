@@ -1,0 +1,91 @@
+# Build a SpecKit input file from Trello data and commit it to main.
+name: Prepare SpecKit Input from Trello
+
+# Trigger from a Trello webhook (repository_dispatch) or manually.
+on:
+  repository_dispatch:
+    types:
+      - trello_sdd_ready
+
+  workflow_dispatch:
+    inputs:
+      card_id:
+        description: "Trello card ID"
+        required: true
+      card_name:
+        description: "Trello card name"
+        required: true
+      card_url:
+        description: "Trello card URL"
+        required: false
+      card_description:
+        description: "Trello card description"
+        required: false
+
+# Allow committing generated files back to the repo.
+permissions:
+  contents: write
+
+# Single job that generates and commits the input file.
+jobs:
+  prepare-speckit-input:
+    name: prepare-speckit-input
+    runs-on: ubuntu-latest
+
+    steps:
+      # Ensure we are on main and have full history for commits.
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # Normalize payload shape into step outputs for downstream steps.
+      - name: Resolve Trello payload
+        id: trello
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "card_id=${{ github.event.inputs.card_id }}" >> "$GITHUB_OUTPUT"
+            echo "card_name=${{ github.event.inputs.card_name }}" >> "$GITHUB_OUTPUT"
+            echo "card_url=${{ github.event.inputs.card_url }}" >> "$GITHUB_OUTPUT"
+            {
+              echo "card_description<<EOF"
+              echo "${{ github.event.inputs.card_description }}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "card_id=${{ github.event.client_payload.card_id }}" >> "$GITHUB_OUTPUT"
+            echo "card_name=${{ github.event.client_payload.card_name }}" >> "$GITHUB_OUTPUT"
+            echo "card_url=${{ github.event.client_payload.card_url }}" >> "$GITHUB_OUTPUT"
+            {
+              echo "card_description<<EOF"
+              echo "${{ github.event.client_payload.card_description }}"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      # Run the Node script that writes the markdown file.
+      - name: Generate SpecKit input file
+        id: speckit_input
+        env:
+          TRELLO_CARD_ID: ${{ steps.trello.outputs.card_id }}
+          TRELLO_CARD_NAME: ${{ steps.trello.outputs.card_name }}
+          TRELLO_CARD_URL: ${{ steps.trello.outputs.card_url }}
+          TRELLO_CARD_DESCRIPTION: ${{ steps.trello.outputs.card_description }}
+        run: node scripts/create-speckit-input-from-trello.mjs
+
+      # Commit and push only if the generated file is new or changed.
+      - name: Commit SpecKit input directly to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "${{ steps.speckit_input.outputs.file_path }}"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "[TRELLO: ${{ steps.trello.outputs.card_id }}] Add SpecKit input from Trello"
+          git push origin HEAD:main
