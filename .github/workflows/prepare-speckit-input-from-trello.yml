@@ -40,9 +40,12 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      # Normalize payload shape into step outputs for downstream steps.
+      # Normalize payload fields into step outputs for downstream steps.
       - name: Resolve Trello payload
         id: trello
+        env:
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "card_id=${{ github.event.inputs.card_id }}" >> "$GITHUB_OUTPUT"
@@ -54,12 +57,21 @@ jobs:
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           else
-            echo "card_id=${{ github.event.client_payload.card_id }}" >> "$GITHUB_OUTPUT"
-            echo "card_name=${{ github.event.client_payload.card_name }}" >> "$GITHUB_OUTPUT"
-            echo "card_url=${{ github.event.client_payload.card_url }}" >> "$GITHUB_OUTPUT"
+            CARD_ID="${{ github.event.client_payload.card_id }}"
+
+            CARD_JSON=$(curl --fail --silent \
+              "https://api.trello.com/1/cards/${CARD_ID}?fields=name,desc,url&key=${TRELLO_API_KEY}&token=${TRELLO_API_TOKEN}")
+
+            CARD_NAME=$(echo "$CARD_JSON" | jq -r '.name')
+            CARD_URL=$(echo "$CARD_JSON" | jq -r '.url')
+            CARD_DESCRIPTION=$(echo "$CARD_JSON" | jq -r '.desc')
+
+            echo "card_id=$CARD_ID" >> "$GITHUB_OUTPUT"
+            echo "card_name=$CARD_NAME" >> "$GITHUB_OUTPUT"
+            echo "card_url=$CARD_URL" >> "$GITHUB_OUTPUT"
             {
               echo "card_description<<EOF"
-              echo "${{ github.event.client_payload.card_description }}"
+              echo "$CARD_DESCRIPTION"
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           fi
