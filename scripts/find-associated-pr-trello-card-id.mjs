@@ -9,10 +9,12 @@ const fallbackText = process.argv.slice(2).join(" ");
 function extractTrelloCardId(text) {
   if (!text) return "";
 
+  const idPattern = "[a-zA-Z0-9]{8}|[a-fA-F0-9]{24}";
+
   const patterns = [
-    /TRELLO_CARD_ID\s*[:=]\s*([a-fA-F0-9]{24})/,
-    /\[TRELLO:\s*([a-fA-F0-9]{24})\]/,
-    /TRELLO:\s*([a-fA-F0-9]{24})/,
+    new RegExp(`TRELLO_CARD_ID\\s*[:=]\\s*(${idPattern})`),
+    new RegExp(`\\[TRELLO:\\s*(${idPattern})\\]`),
+    new RegExp(`TRELLO:\\s*(${idPattern})`),
   ];
 
   for (const pattern of patterns) {
